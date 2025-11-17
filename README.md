@@ -1,2 +1,7 @@
-# full-stack-open
-Contains my submission for the online course [Full stack open - Deep Dive Into Modern Web Development](https://fullstackopen.com/en/). 
+# Full Stack open: Submissions
+
+This repository contains my submissions to the exercises of the online course [Full stack open - Deep Dive Into Modern Web Development](https://fullstackopen.com/en/).
+
+The course was started on 17.11.2025. The course is taken freely without an enrollment at the University of Helsinki with the goal of receiving the certification after completion.
+
+The structure of the repository is based on the recommendations in the beginning of text block [Exercises 0.1-0.6](https://fullstackopen.com/en/part0/fundamentals_of_web_apps#exercises-0-1-0-6).
