@@ -48,18 +48,37 @@ const Person = (props) => {
   )
 }
 
+const Notification = (props) => {
+  if (props.message === null) {
+    return null
+  }
+  return (
+    <div className="notification">
+      {props.message}
+    </div>
+  )
+}
+
 const App = () => {
   
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterText, setFilterText] = useState('')
+  const [nofiticationMessage, setNotificationMessage] = useState(null)
 
   useEffect(() => {
     personService
       .getAll()
       .then(initialPersons => setPersons(initialPersons))
   }, [])
+
+  const fireNotification = (text) => {
+    setNotificationMessage(text)
+    setTimeout(() => {
+      setNotificationMessage(null)
+    }, 5000)
+  }
 
   const addName = (event) => {
     event.preventDefault()
@@ -75,6 +94,8 @@ const App = () => {
           .update(newPerson.id, newPerson)
           .then(returnedPerson => {
             setPersons(persons.map(person => person.id === returnedPerson.id ? returnedPerson : person))
+            // success notification
+            fireNotification(`Changed number of ${returnedPerson.name}`)
           })
       } else {
         console.log("No phonenumber update")
@@ -87,6 +108,8 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           setNewName("")
           setNewNumber("")
+          // success notification
+          fireNotification(`Added ${returnedPerson.name}`)
         })
     }
   }
@@ -123,6 +146,7 @@ const App = () => {
 
   return (
     <div>
+      <Notification message={nofiticationMessage}/>
       <h2>Phonebook</h2>
       <Filter filterText={filterText} handleFilterChange={handleFilterChange}/>
 
