@@ -53,7 +53,7 @@ const Notification = (props) => {
     return null
   }
   return (
-    <div className="notification">
+    <div className={props.type}>
       {props.message}
     </div>
   )
@@ -66,6 +66,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filterText, setFilterText] = useState('')
   const [nofiticationMessage, setNotificationMessage] = useState(null)
+  // change style of notification (error or success notification)
+  const [notificationType, setNotificationType] = useState(null)
 
   useEffect(() => {
     personService
@@ -73,8 +75,9 @@ const App = () => {
       .then(initialPersons => setPersons(initialPersons))
   }, [])
 
-  const fireNotification = (text) => {
+  const fireNotification = (text, type) => {
     setNotificationMessage(text)
+    setNotificationType(type)
     setTimeout(() => {
       setNotificationMessage(null)
     }, 5000)
@@ -95,8 +98,9 @@ const App = () => {
           .then(returnedPerson => {
             setPersons(persons.map(person => person.id === returnedPerson.id ? returnedPerson : person))
             // success notification
-            fireNotification(`Changed number of ${returnedPerson.name}`)
+            fireNotification(`Changed number of ${returnedPerson.name}`, "notification")
           })
+          .catch(error => fireNotification(`Information of ${newPerson.name} has already been removed from server`, "error"))
       } else {
         console.log("No phonenumber update")
       }
@@ -109,7 +113,7 @@ const App = () => {
           setNewName("")
           setNewNumber("")
           // success notification
-          fireNotification(`Added ${returnedPerson.name}`)
+          fireNotification(`Added ${returnedPerson.name}`, "notification")
         })
     }
   }
@@ -146,7 +150,7 @@ const App = () => {
 
   return (
     <div>
-      <Notification message={nofiticationMessage}/>
+      <Notification message={nofiticationMessage} type={notificationType}/>
       <h2>Phonebook</h2>
       <Filter filterText={filterText} handleFilterChange={handleFilterChange}/>
 
