@@ -1,5 +1,19 @@
 const express = require('express')
+const cors = require('cors')
+
 const app = express()
+
+// enable cors (cross-origin resource sharing)
+// must configure: https://stackoverflow.com/questions/57873186/solved-cannot-get-cors-to-work-no-matter-what-i-try
+app.use(
+  cors({
+    allowedHeaders: ["authorization", "Content-Type"], // you can change the headers
+    exposedHeaders: ["authorization"], // you can change the headers
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false
+  })
+)
 
 // middleware for handling json post data
 app.use(express.json())
@@ -16,7 +30,6 @@ morgan.token('data', (req, res) => {
         return req.method
     }
 })
-
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
 
 // not const, because we can update this list
@@ -99,7 +112,7 @@ app.post("/api/persons", (request, response) => {
     } 
     else {
         const person = {
-            id: Math.floor(Math.random() * 1000),
+            id: Math.floor(Math.random() * 1000).toString(),
             name: body.name,
             number: body.number
         }
