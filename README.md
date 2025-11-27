@@ -24,5 +24,6 @@ Projects:
 
 Projects:
 
-* [Phonebook Backend](./part3/phonebook/backend/)
-* [Phonebook Frontend](./part3/phonebook/frontend/)
+* [Phonebook](./part3/phonebook/):
+    * [Phonebook Backend](./part3/phonebook/backend/) (contains static frontend in /dist folder to be served by this backend)
+    * [Phonebook Frontend](./part3/phonebook/frontend/)
