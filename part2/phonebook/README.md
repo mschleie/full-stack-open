@@ -1,16 +1,3 @@
-# React + Vite
+# Phonebook
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Project of exercises 2.6-2.10 of [Part 2: forms](https://fullstackopen.com/en/part2/forms#exercises-2-6-2-10), 2.11 of [Part 2: getting data from the server](https://fullstackopen.com/en/part2/getting_data_from_server#exercise-2-11), 2.12-2.15 of [Part 2: altering data in server](https://fullstackopen.com/en/part2/altering_data_in_server#exercises-2-12-2-15) and 2.16-2.17 of [Part 2: adding styles to react app](https://fullstackopen.com/en/part2/adding_styles_to_react_app#exercises-2-16-2-17).
