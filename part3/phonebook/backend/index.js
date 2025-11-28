@@ -27,30 +27,6 @@ morgan.token('data', (req, res) => {
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
 
-// not const, because we can update this list
-let persons = [
-    {
-        "id": "1",
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": "2",
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": "3",
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id":"4",
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
-
 app.get("/info", (request, response, next) => {
     // track datetime receiving the request
     const timestamp = new Date(Date.now())
@@ -96,36 +72,20 @@ app.delete("/api/persons/:id", (request, response, next) => {
         .catch(error => next(error))
 })
 
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
     const body = request.body
-    // check if data was sent along with the request
-    if (!body) {
-        return response.status(400).json({
-            error: "response body undefined"
-        })
-    } else if (!body.name) {
-        return response.status(400).json({
-            error: "name is missing"
-        })
-    } else if (!body.number) {
-        return response.status(400).json({
-            error: "number is missing"
-        })
-    } else if(persons.find(person => person.name === body.name)) {
-        return response.status(400).json({
-            error: "name must be unique"
-        })
-    } 
-    else {
-        const person = new Person({
-            name: body.name,
-            number: body.number
-        })
-        person.save().then(result => {
+
+    //with validation error handling
+    const person = new Person({
+        name: body.name,
+        number: body.number
+    })
+    person.save()
+        .then(result => {
             console.log('person saved in db', result)
             response.json(result)
         })
-    }
+        .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -150,6 +110,8 @@ const errorHandler = (error, request, response, next) => {
 
     if (error.name === 'CastError') {
         return response.status(400).send({error: 'malformatted id'})
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).send({error: error.message})
     }
 
     next(error)

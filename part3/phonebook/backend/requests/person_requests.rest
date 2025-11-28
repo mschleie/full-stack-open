@@ -1,0 +1,31 @@
+GET http://localhost:3001/api/persons/
+
+###
+GET http://localhost:3001/api/persons/69297d1ba203ce2d50e46f07
+
+###
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "Test Person",
+    "number": "12-31231231"
+}
+
+###
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "Test Bad Number",
+    "number": "123123123"
+}
+
+###
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "Test Bad Number 2",
+    "number": "12312"
+}

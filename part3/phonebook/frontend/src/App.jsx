@@ -99,7 +99,8 @@ const App = () => {
             // success notification
             fireNotification(`Changed number of ${returnedPerson.name}`, "notification")
           })
-          .catch(error => fireNotification(`Information of ${newPerson.name} has already been removed from server`, "error"))
+          .catch(error => fireNotification(error.response.data.error, "error"))
+          //.catch(error => fireNotification(`Information of ${newPerson.name} has already been removed from server`, "error"))
       } else {
         console.log("No phonenumber update")
       }
@@ -114,6 +115,7 @@ const App = () => {
           // success notification
           fireNotification(`Added ${returnedPerson.name}`, "notification")
         })
+        .catch(error => fireNotification(error.response.data.error, "error"))
     }
   }
 
