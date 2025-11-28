@@ -1,7 +1,14 @@
+require('dotenv').config()
+
 const express = require('express')
+
+const Person = require('./models/person')
 
 // this is a backend using express
 const app = express()
+
+// use frontend build
+app.use(express.static('dist'))
 
 // middleware for handling json post data
 app.use(express.json())
@@ -19,9 +26,6 @@ morgan.token('data', (req, res) => {
     }
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
-
-// use frontend build
-app.use(express.static('dist'))
 
 // not const, because we can update this list
 let persons = [
@@ -47,38 +51,49 @@ let persons = [
     }
 ]
 
-app.get("/info", (request, response) => {
+app.get("/info", (request, response, next) => {
     // track datetime receiving the request
     const timestamp = new Date(Date.now())
-    // build up string containing html with message and timestamp
-    const message = `<p>Phonebook has info for ${persons.length} persons</p>`
-    const time = `<p>${timestamp}</p>`
-    // sent html to client to be rendered
-    response.send(message + time)
+    // count number of person entries in db
+    Person.countDocuments()
+        .then(result => {
+            // build up string containing html with message and timestamp
+            const message = `<p>Phonebook has info for ${result} persons</p>`
+            const time = `<p>${timestamp}</p>`
+            // sent html to client to be rendered
+            response.send(message + time)
+
+        })
+        .catch(error => next(error))
 })
 
-app.get("/api/persons", (request, response) => {
-    response.json(persons)
+app.get("/api/persons", (request, response, next) => {
+    Person.find({})
+        .then(persons => {
+            response.json(persons)
+        })
+        .catch(error => next(error))
 })
 
-app.get("/api/persons/:id", (request, response) => {
-    // search for person with given id in db
-    const id = request.params.id
-    const person = persons.find(person => person.id === id)
-    // send person data iff person with given id exists in db
-    if (person) {
-        response.json(person)
-    } else {
-        response.status(404).end()
-    }
+app.get("/api/persons/:id", (request, response, next) => {
+    // find person by given id
+    Person.findById(request.params.id)
+        .then(person => {
+            if (person) {
+                response.json(person)
+            } else {
+                response.status(404).end()
+            }
+        })
+        .catch(error => next(error))
 })
 
-app.delete("/api/persons/:id", (request, response) => {
-    // search for persons with given id in db
-    const id = request.params.id
-    persons = persons.filter(person => person.id !== id)
-    // respond 204 in both cases, something was deleted and nothing was deleted
-    response.status(204).end()
+app.delete("/api/persons/:id", (request, response, next) => {
+    Person.findByIdAndDelete(request.params.id)
+        .then(result => {
+            response.status(204).end()
+        })
+        .catch(error => next(error))
 })
 
 app.post("/api/persons", (request, response) => {
@@ -102,18 +117,48 @@ app.post("/api/persons", (request, response) => {
         })
     } 
     else {
-        const person = {
-            id: Math.floor(Math.random() * 1000).toString(),
+        const person = new Person({
             name: body.name,
             number: body.number
-        }
-        // add to collection and respond newly created person
-        persons = persons.concat(person)
-        response.json(person)
+        })
+        person.save().then(result => {
+            console.log('person saved in db', result)
+            response.json(result)
+        })
     }
 })
 
+app.put('/api/persons/:id', (request, response, next) => {
+    const newNumber = request.body.number    
+    Person.findById(request.params.id)
+        .then(person => {
+            if (!person) {
+                return response.status(400).end()
+            }
+            // if person exists, change the number
+            person.number = newNumber
+            return person.save().then(updated => {
+                response.json(updated)
+            })
+        })
+        .catch(error => next(error))
+})
+
+// define error handling middleware at the end after routing
+const errorHandler = (error, request, response, next) => {
+    console.log(error)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({error: 'malformatted id'})
+    }
+
+    next(error)
+}
+
+// this has to be the last loaded middleware, also all the routes should be registered before this!
+app.use(errorHandler)
+
 // connect server to port
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
 

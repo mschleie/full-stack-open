@@ -1,0 +1,32 @@
+const mongoose = require('mongoose')
+
+// otherwise only fields specified in schema would be saved
+mongoose.set('strictQuery', false)
+
+const url = process.env.MONGODB_URI
+
+// connect to db via IPv4 (== family : 4)
+console.log('connection to', url)
+mongoose.connect(url, {family: 4})
+    .then(result => {
+        console.log('connected to MongoDB')
+    })
+    .catch(error => {
+        console.log('error connecting to MongoDB', error.message)
+    })
+
+// define schema for saving person data
+const personSchema = new mongoose.Schema({
+    name: String,
+    number: String
+})
+// change JSON return: _id Object to String and delte __v versioning
+personSchema.set('toJSON', {
+    transform: (document, returnedObject) => {
+        returnedObject.id = returnedObject._id.toString()
+        delete returnedObject._id
+        delete returnedObject.__v
+    }
+})
+// export Person model 
+module.exports = mongoose.model('Person', personSchema)
