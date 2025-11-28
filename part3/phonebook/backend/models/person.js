@@ -6,7 +6,6 @@ mongoose.set('strictQuery', false)
 const url = process.env.MONGODB_URI
 
 // connect to db via IPv4 (== family : 4)
-console.log('connection to', url)
 mongoose.connect(url, { family: 4 })
   .then(() => {
     console.log('connected to MongoDB')
