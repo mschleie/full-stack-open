@@ -1,3 +1,3 @@
 # Phonebook Backend
 
-Project of exercises 3.1-3.8 of [Part 3: node js and express](https://fullstackopen.com/en/part3/node_js_and_express#exercises-3-1-3-6) and 3.9-3.11 of [Part 3: deploying app to internet](https://fullstackopen.com/en/part3/deploying_app_to_internet#exercises-3-9-3-11).
+Project of exercises 3.1-3.8 of [Part 3: node js and express](https://fullstackopen.com/en/part3/node_js_and_express), 3.9-3.11 of [Part 3: deploying app to internet](https://fullstackopen.com/en/part3/deploying_app_to_internet), 3.12-3.18 of [Part 3: Saving data to mongo db](https://fullstackopen.com/en/part3/saving_data_to_mongo_db) and 3.19-3.22 of [Part 3: validation and eslint](https://fullstackopen.com/en/part3/validation_and_es_lint).
