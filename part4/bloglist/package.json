@@ -7,13 +7,17 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "node --test",
-    "dev": "node --watch index.js"
+    "start": "NODE_ENV=production node index.js",
+    "test": "NODE_ENV=test node --test",
+    "dev": "NODE_ENV=development node --watch index.js"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "lodash": "^4.17.21",
     "mongoose": "^9.0.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.4"
   }
 }
