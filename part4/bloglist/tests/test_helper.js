@@ -1,4 +1,5 @@
 const Blog = require('./../models/blog')
+const User = require('./../models/user')
 
 const testBlogs = [
   {
@@ -51,6 +52,16 @@ const testBlogs = [
   }
 ]
 
+const testBlogForDelete = {
+  _id: "5a422bc61b54a676234d42fc",
+  title: "To be deleted",
+  author: "No one cares",
+  url: "www.noonecares.com",
+  lkes: 1,
+  __v:0,
+  user: "69368986dc0811bbfb12c578"
+}
+
 const blogsInDB = async () => {
   const blogs = await Blog.find({})
   return blogs.map(blog => blog.toJSON())
@@ -58,4 +69,41 @@ const blogsInDB = async () => {
 
 const notExistingId = '123123123123123123123123'
 
-module.exports = { testBlogs, blogsInDB, notExistingId }
+const testUsers = [
+  {
+    _id: "69368986dc0811bbfb12c543",
+    username: "t01",
+    name: "TestUser-01",
+    password: "test1234"
+  },
+  {
+    _id: "69368986dc0811bbfb12c553",
+    username: "t02",
+    name: "TestUser-02",
+    password: "4321test"
+  }
+]
+
+const loginUser = {
+  _id: "69368986dc0811bbfb12c578",
+  username: "LoginUser",
+  name: "User for Login",
+  password: "loginTest"
+}
+
+const createLoginUser = async () => {
+  const passwordHash = await bcrypt.hash(loginUser.password, 10)
+  return {
+    username: loginUser.username,
+    name: loginUser.name,
+    password: loginUser.password,
+    passwordHash: passwordHash
+  }
+}
+
+const usersInDB = async () => {
+  const users = await User.find({})
+  return users.map(user => user.toJSON())
+}
+
+module.exports = { testBlogs, blogsInDB, notExistingId, testUsers, usersInDB, createLoginUser, loginUser, testBlogForDelete }

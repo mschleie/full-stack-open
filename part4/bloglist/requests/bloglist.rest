@@ -3,10 +3,15 @@ GET http://localhost:3003/api/blogs
 ###
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InQwMSIsImlkIjoiNjkzNmE1NWQ1NDM4N2M5MTQ3NDkzOWU4IiwiaWF0IjoxNzY1MTk0MDY3fQ.Qz_TyiDLXJ8rc7GOBgof-JHnSQnbh1r48BN7NC45VLU
 
 {
-    "title": "Blogtest 1",
+    "title": "Blogtest 16",
     "author": "Author 1",
-    "url": "www.blog-1-author-1.com",
-    "likes": "11"
+    "url": "www.blog-2-author-1.com",
+    "likes": "113"
 }
+
+###
+DELETE http://localhost:3003/api/blogs/6936bb403ef92ffe00d32080
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InQwMSIsImlkIjoiNjkzNmE1NWQ1NDM4N2M5MTQ3NDkzOWU4IiwiaWF0IjoxNzY1MTkxMDQ2fQ.ZyHBqDfqw3puM48O4AaglYb-NngI2yShRYLPkpBi6Bs

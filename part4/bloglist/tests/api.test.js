@@ -2,9 +2,11 @@ const { test, after, beforeEach } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const assert = require('node:assert')
+const bcrypt = require('bcrypt')
 const app = require('./../app')
 
 const Blog = require('./../models/blog')
+const User = require('./../models/user')
 const helper = require('./test_helper')
 
 const api = supertest(app)
@@ -12,6 +14,17 @@ const api = supertest(app)
 beforeEach(async () => {
   await Blog.deleteMany({})
   await Blog.insertMany(helper.testBlogs)
+  // for login
+  await User.deleteMany({})
+  // save user for login
+  passwordHash = await bcrypt.hash(helper.loginUser.password, 10)
+  loginUser = new User({
+    _id: helper.loginUser._id,
+    username: helper.loginUser.username,
+    name: helper.loginUser.name,
+    passwordHash: passwordHash
+  })
+  await loginUser.save()
 })
 
 test('blogs are returned as json', async () => {
@@ -34,6 +47,13 @@ test('blogs returned have id field instead of _id', async () => {
 })
 
 test('a blog can be added', async () => {
+  // login via test user
+  const loggedIn = await api
+    .post('/api/login')
+    .send({ username: helper.loginUser.username, password: helper.loginUser.password })
+    .expect('Content-Type', /application\/json/)
+  // get token from login
+  const token = loggedIn.body.token
   // new blog to be added
   const newBlog = {
     title: 'Test Blog',
@@ -44,6 +64,7 @@ test('a blog can be added', async () => {
   // post new blog and expect valid status code and content type
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -55,7 +76,30 @@ test('a blog can be added', async () => {
   assert(titles.includes('Test Blog'))
 })
 
+test('adding blog without login token results in 401', async () => {
+  const newBlog = {
+    title: 'Test Blog',
+    author: 'Test Author',
+    url: 'www.test-author-blog.com',
+    likes: 13
+  }
+  // post new blog and expect valid status code and content type
+  await api
+    .post('/api/blogs')
+    .set('Authorization', `Bearer ${null}`)
+    .send(newBlog)
+    .expect(401)
+    .expect('Content-Type', /application\/json/)
+})
+
 test('a blog with no likes given is saved with zero likes', async () => {
+  // login via test user
+  const loggedIn = await api
+    .post('/api/login')
+    .send({ username: helper.loginUser.username, password: helper.loginUser.password })
+    .expect('Content-Type', /application\/json/)
+  // get token from login
+  const token = loggedIn.body.token
   // new blog without likes given
   const newBlog = {
     title: 'Test Blog',
@@ -65,6 +109,7 @@ test('a blog with no likes given is saved with zero likes', async () => {
   // post new blog and check if saving works
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -75,6 +120,13 @@ test('a blog with no likes given is saved with zero likes', async () => {
 })
 
 test('a new blog must contain title', async () => {
+  // login via test user
+  const loggedIn = await api
+    .post('/api/login')
+    .send({ username: helper.loginUser.username, password: helper.loginUser.password })
+    .expect('Content-Type', /application\/json/)
+  // get token from login
+  const token = loggedIn.body.token
   // new blog without title
   const newBlog = {
     author: 'Test Author',
@@ -84,6 +136,7 @@ test('a new blog must contain title', async () => {
   // post new blog and expect error status
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(400)
   // check if no blog is added
@@ -93,6 +146,13 @@ test('a new blog must contain title', async () => {
 })
 
 test('a new blog must contain url', async () => {
+  // login via test user
+  const loggedIn = await api
+    .post('/api/login')
+    .send({ username: helper.loginUser.username, password: helper.loginUser.password })
+    .expect('Content-Type', /application\/json/)
+  // get token from login
+  const token = loggedIn.body.token
   // new blog without url
   const newBlog = {
     title: 'Test Title',
@@ -102,6 +162,7 @@ test('a new blog must contain url', async () => {
   // post new blog and expect error status
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(400)
   // check if no blog is added
@@ -111,6 +172,13 @@ test('a new blog must contain url', async () => {
 })
 
 test('a new blog must contain title and url', async () => {
+  // login via test user
+  const loggedIn = await api
+    .post('/api/login')
+    .send({ username: helper.loginUser.username, password: helper.loginUser.password })
+    .expect('Content-Type', /application\/json/)
+  // get token from login
+  const token = loggedIn.body.token
   // new blog without title and url
   const newBlog = {
     author: 'Test Author',
@@ -119,6 +187,7 @@ test('a new blog must contain title and url', async () => {
   // post new blog and expect error status
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(400)
   // check if no blog is added
@@ -127,19 +196,44 @@ test('a new blog must contain title and url', async () => {
   assert(!blogs.map(blog => blog.author).includes('Test Author'))
 })
 
-test('delete an exisiting blog', async () => {
+test('delete without login throws 401', async () => {
   await api
     .delete(`/api/blogs/${helper.testBlogs[0]._id}`)
+    .set('Authorization', `Bearer ${null}`)
+    .expect(401)
+})
+
+test('delete an existing blog', async () => {
+  // add blog for loginUser
+  await Blog.insertOne(helper.testBlogForDelete)
+  // login via test user
+  const loggedIn = await api
+    .post('/api/login')
+    .send({ username: helper.loginUser.username, password: helper.loginUser.password })
+    .expect('Content-Type', /application\/json/)
+  // get token from login
+  const token = loggedIn.body.token
+  await api
+    .delete(`/api/blogs/${helper.testBlogForDelete._id}`)
+    .set('Authorization', `Bearer ${token}`)
     .expect(204)
   // check if blog count decreased and deleted blog is not in db anymore
   const blogs = await helper.blogsInDB()
-  assert.strictEqual(blogs.length, helper.testBlogs.length - 1)
-  assert(!blogs.map(blog => blog.title).includes('React patterns'))
+  assert.strictEqual(blogs.length, helper.testBlogs.length)
+  assert(!blogs.map(blog => blog.title).includes('To be deleted'))
 })
 
 test('delete a not existing blog', async() => {
+  // login via test user
+  const loggedIn = await api
+    .post('/api/login')
+    .send({ username: helper.loginUser.username, password: helper.loginUser.password })
+    .expect('Content-Type', /application\/json/)
+  // get token from login
+  const token = loggedIn.body.token
   await api
     .delete(`/api/blogs/${helper.notExistingId}`)
+    .set('Authorization', `Bearer ${token}`)
     .expect(204)
   // check if nothing changed
   const blogs = await helper.blogsInDB()

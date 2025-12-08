@@ -1,12 +1,15 @@
 const blogsRouter = require('express').Router()
+const { userExtractor } = require('../utils/middleware')
 const Blog = require('./../models/blog')
+const User = require('./../models/user')
+const jwt = require('jsonwebtoken')
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({})
+  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1})
   response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response) => {
+blogsRouter.post('/', userExtractor, async (request, response) => {
   const body = request.body
 
   if (!body.title || !body.url) {
@@ -16,16 +19,32 @@ blogsRouter.post('/', async (request, response) => {
       title: body.title,
       author: body.author,
       url: body.url,
-      likes: body.likes || 0
+      likes: body.likes || 0,
+      user: request.user._id
     })
     const result = await blog.save()
+
+    // save blog to user
+    request.user.blogs = request.user.blogs.concat(result._id)
+    await request.user.save()
+
+    // success
     response.status(201).json(result)
   }
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
-  await Blog.findByIdAndDelete(request.params.id)
-  response.status(204).end()
+blogsRouter.delete('/:id', userExtractor, async (request, response) => {
+  // check if token suits user who created blog
+  blogToDelete = await Blog.findById(request.params.id)
+
+  if (!blogToDelete) {
+    response.status(204).end() // if blogToDelete does not exist return also 204
+  } else if (blogToDelete.user.toString() !== request.user._id.toString()) {
+    return response.status(401).json({ error: 'user did not create this blog '})
+  } else {
+    await Blog.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+  }
 })
 
 blogsRouter.put('/:id', async (request, response) => {
