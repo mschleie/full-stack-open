@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import Toggable from './components/Toggable'
+import BlogForm from './components/BlogForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -22,11 +24,6 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-
-  // new blog creation
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
 
   // notification
   const [notification, setNotification] = useState(null)
@@ -74,22 +71,44 @@ const App = () => {
     notify('logout successfull', 'hint')
   }
 
-  const handleCreateNew = async (event) => {
-    event.preventDefault()
-
+  const createNewBlog = async (blog) => {
     try {
-      const newBlog = {
-        'title': title,
-        'author': author,
-        'url': url
-      }
-      const created = await blogService.create(newBlog)
+      const created = await blogService.create(blog)
       setBlogs(blogs.concat(created))
       console.log('created', created)
       notify(`successfully created new blog ${created.title}`, 'hint')
     } catch {
       console.error('creation failed')
       notify('creation of new blog failed', 'error')
+    }
+  }
+
+  const updateBlog = async (blog) => {
+    try {
+      const updated = await blogService.update(blog)
+      console.log('updated', updated)
+      // need to refresh
+      const updatedBlogs = blogs.map(b => b.id === updated.id ? updated : b)
+      console.log('updatedBlogs', updatedBlogs)
+      setBlogs(updatedBlogs)
+      notify(`successfully updated blog ${updated.title}`, 'hint')
+    } catch {
+      console.error('update failed')
+      notify(`update of blog ${blog.title} failed`, 'error')
+    }
+  }
+
+  const removeBlog = async (blog) => {
+    if (window.confirm(`Remove the blog ${blog.title}?`)) {
+      try {
+        await blogService.remove(blog)
+        // need to refresh
+        setBlogs(blogs.filter(b => b.id !== blog.id))
+        notify(`successfully removed blog ${blog.title}`, 'hint')
+      } catch {
+        console.error('removal failed')
+        notify(`removal of blog ${blog.title} failed`, 'error')
+      }
     }
   }
 
@@ -100,6 +119,12 @@ const App = () => {
     }
     setNotification(notification)
     setTimeout(() => setNotification(null), 5000)
+  }
+
+  const sortedBlogs = () => {
+    const sorted = [ ...blogs ]
+      .sort((a, b) => a.likes < b.likes ? 1 : -1)
+    return sorted
   }
 
   if (!user) {
@@ -129,28 +154,13 @@ const App = () => {
         <p>{user.name} is logged in</p>
         <button onClick={handleLogout}>Logout</button>
       </div>
-      <div>
-        <h2>Create new</h2>
-        <form onSubmit={handleCreateNew}>
-          <div>
-            <label>title</label>
-            <input type='text' value={title} onChange={({ target }) => setTitle(target.value)}></input>
-          </div>
-          <div>
-            <label>author</label>
-            <input type='text' value={author} onChange={({ target }) => setAuthor(target.value)}></input>
-          </div>
-          <div>
-            <label>url</label>
-            <input type='text' value={url} onChange={({ target }) => setUrl(target.value)}></input>
-          </div>
-          <button type='submit'>Create</button>
-        </form>
-      </div>
+      <Toggable buttonLabel='Create new blog'>
+        <BlogForm createNewBlog={createNewBlog}/>
+      </Toggable>      
       <div>
         <h2>blogs</h2>
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
+        {sortedBlogs().map(blog => 
+          <Blog key={blog.id} blog={blog} updateBlog={updateBlog} removeBlog={removeBlog} removable={user.username === blog.user.username}/>
         )}
       </div>
     </div>
