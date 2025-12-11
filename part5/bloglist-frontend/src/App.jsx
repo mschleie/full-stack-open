@@ -31,7 +31,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -156,10 +156,10 @@ const App = () => {
       </div>
       <Toggable buttonLabel='Create new blog'>
         <BlogForm createNewBlog={createNewBlog}/>
-      </Toggable>      
+      </Toggable>
       <div>
         <h2>blogs</h2>
-        {sortedBlogs().map(blog => 
+        {sortedBlogs().map(blog =>
           <Blog key={blog.id} blog={blog} updateBlog={updateBlog} removeBlog={removeBlog} removable={user.username === blog.user.username}/>
         )}
       </div>

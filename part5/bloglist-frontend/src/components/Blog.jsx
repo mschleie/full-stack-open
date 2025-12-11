@@ -9,7 +9,7 @@ const Blog = ({ blog, updateBlog, removeBlog, removable }) => {
 
   const increaseLikes = (event) => {
     event.preventDefault()
-    const update = { ...blog, likes: blog.likes + 1}
+    const update = { ...blog, likes: blog.likes + 1 }
     updateBlog(update)
   }
 
@@ -46,7 +46,7 @@ const Blog = ({ blog, updateBlog, removeBlog, removable }) => {
     return (
       <div style={blogStyle}>
         {blog.title} {blog.author} <button onClick={toggleShowDetails}>view</button>
-      </div>  
+      </div>
     )
   }
 }
