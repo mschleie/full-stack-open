@@ -26,16 +26,22 @@ const BlogForm = (props) => {
       <h2>Create new</h2>
       <form onSubmit={addBlog}>
         <div>
-          <label>title</label>
-          <input type='text' value={title} onChange={({ target }) => setTitle(target.value)}></input>
+          <label>
+            title
+            <input type='text' value={title} onChange={({ target }) => setTitle(target.value)}></input>
+          </label>
         </div>
         <div>
-          <label>author</label>
-          <input type='text' value={author} onChange={({ target }) => setAuthor(target.value)}></input>
+          <label>
+            author
+            <input type='text' value={author} onChange={({ target }) => setAuthor(target.value)}></input>
+          </label>
         </div>
         <div>
-          <label>url</label>
-          <input type='text' value={url} onChange={({ target }) => setUrl(target.value)}></input>
+          <label>
+            url
+            <input type='text' value={url} onChange={({ target }) => setUrl(target.value)}></input>
+          </label>
         </div>
         <button type='submit'>Create</button>
       </form>
