@@ -161,4 +161,54 @@ describe('Bloglist app', () => {
       await expect(blogTwoElement.getByRole('button', { name: 'remove' })).not.toBeVisible()
     })
   })
+
+  describe('When multiple blogs with different like count exist', () => {
+
+    beforeEach(async ({ page }) => {
+      // create blog with one user
+      await helper.loginWith(page, "benk", "test1234")
+      // create blog and increase likes to 1
+      await helper.createBlog(page, helper.testBlogOne)
+      await helper.increaseLikes(page, helper.testBlogOne)
+      // create blog and increase likes to 5
+      await helper.createBlog(page, helper.testBlogTwo)
+      for (let i = 0; i < 5; i++) {
+        await helper.increaseLikes(page, helper.testBlogTwo)
+      }
+      await helper.logout(page)
+      // create blog with another user
+      await helper.loginWith(page, "josh", "1234test")
+      // create blog and increase likes to 3
+      await helper.createBlog(page, helper.testBlogThree)
+      for (let i = 0; i < 3; i++) {
+        await helper.increaseLikes(page, helper.testBlogThree)
+      }
+      // increase likes of one by other user
+      await helper.increaseLikes(page, helper.testBlogOne)
+      await helper.logout(page)
+    })
+
+    test('blogs should be ordered descending by like count', async ({ page }) => {
+      await helper.loginWith(page, "benk", "test1234")
+
+      // get list of all blogs
+      const blogs = page.getByRole('button', { name: 'view'}).locator('..')
+
+      // check if nth suits the order by checking content of nth blog
+      // order should be: testBlogTwo -> testBlogThree -> testBlogOne
+      // check if according content is given and content of other blogs is not in nth element
+      // first element should be testBlogTwo
+      await expect(blogs.nth(0)).toContainText(`${helper.testBlogTwo.title} ${helper.testBlogTwo.author}`)
+      await expect(blogs.nth(0)).not.toContainText(`${helper.testBlogOne.title} ${helper.testBlogOne.author}`)
+      await expect(blogs.nth(0)).not.toContainText(`${helper.testBlogThree.title} ${helper.testBlogThree.author}`)
+      // second element should be testBlogThree
+      await expect(blogs.nth(1)).toContainText(`${helper.testBlogThree.title} ${helper.testBlogThree.author}`)
+      await expect(blogs.nth(1)).not.toContainText(`${helper.testBlogOne.title} ${helper.testBlogOne.author}`)
+      await expect(blogs.nth(1)).not.toContainText(`${helper.testBlogTwo.title} ${helper.testBlogTwo.author}`)
+      // third element should be testBlogOne
+      await expect(blogs.nth(2)).toContainText(`${helper.testBlogOne.title} ${helper.testBlogOne.author}`)
+      await expect(blogs.nth(2)).not.toContainText(`${helper.testBlogTwo.title} ${helper.testBlogTwo.author}`)
+      await expect(blogs.nth(2)).not.toContainText(`${helper.testBlogThree.title} ${helper.testBlogThree.author}`)
+    })
+  })
 })
