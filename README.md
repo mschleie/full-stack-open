@@ -31,3 +31,10 @@ Projects:
 ## Part 4
 
 [Bloglist](./part4/bloglist/)
+
+## Part 5
+
+* [Bloglist](./part5/bloglist/)
+    * [Bloglist Backend](./part5/bloglist-backend/)
+    * [Bloglist Frontend](./part5/bloglist-frontend/)
+    * [Bloglist E2E](./part5/bloglist-e2e/)
